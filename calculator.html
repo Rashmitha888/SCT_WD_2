@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f7f7f7;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .calculator {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      padding: 20px;
+      width: 260px;
+    }
+
+    .display {
+      height: 60px;
+      font-size: 1.5rem;
+      text-align: right;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+      overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #e0e0e0;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #d5d5d5;
+    }
+
+    .operator {
+      background: #ffd966;
+    }
+
+    .equal {
+      background: #6fcf97;
+      color: #fff;
+      grid-column: span 2;
+    }
+
+    .clear {
+      background: #ff6b6b;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button class="clear" data-action="clear">C</button>
+      <button data-action="delete">⌫</button>
+      <button class="operator" data-value="/">÷</button>
+      <button class="operator" data-value="*">×</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="operator" data-value="-">−</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="operator" data-value="+">+</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="equal" data-action="equals">=</button>
+
+      <button data-value="0" style="grid-column: span 2;">0</button>
+      <button data-value=".">.</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('button');
+
+    let expression = '';
+
+    function updateDisplay() {
+      display.textContent = expression || '0';
+    }
+
+    function appendValue(value) {
+      const lastChar = expression.slice(-1);
+      if ('+-*/'.includes(lastChar) && '+-*/'.includes(value)) return;
+      expression += value;
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        if (!expression) return;
+        const result = Function('return ' + expression)();
+        expression = result.toString();
+        updateDisplay();
+      } catch {
+        display.textContent = 'Error';
+        expression = '';
+      }
+    }
+
+    function clearAll() {
+      expression = '';
+      updateDisplay();
+    }
+
+    function deleteLast() {
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    buttons.forEach(button => {
+      const value = button.dataset.value;
+      const action = button.dataset.action;
+
+      button.addEventListener('click', () => {
+        if (value) appendValue(value);
+        if (action === 'clear') clearAll();
+        if (action === 'delete') deleteLast();
+        if (action === 'equals') calculate();
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      if ((e.key >= '0' && e.key <= '9') || '+-*/.'.includes(e.key)) appendValue(e.key);
+      if (e.key === 'Enter') calculate();
+      if (e.key === 'Backspace') deleteLast();
+      if (e.key === 'Escape') clearAll();
+    });
+  </script>
+
+</body>
+</html>
